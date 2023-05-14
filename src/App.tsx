@@ -2,12 +2,16 @@ import SignIn from './pages/SignIn'
 // import SignUp from './pages/SignUp'
 import GlobalStyle from './styles/global'
 
-function App() {
+import { AuthContext } from './context/AuthContext'
+
+AuthContext.Provider
+
+const App: React.FC = () => {
   return (
     <>
-      <div>
+      <AuthContext.Provider value={{ name: 'user1' }}>
         <SignIn />
-      </div>
+      </AuthContext.Provider>
       <GlobalStyle />
     </>
   )
