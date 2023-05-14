@@ -1,4 +1,4 @@
-import { createContext, useCallback, useState } from 'react'
+import { createContext, useCallback, useContext, useState } from 'react'
 import { api } from '../services/api'
 
 interface IAuthState {
@@ -11,9 +11,10 @@ interface ISignInCredentials {
   password: string
 }
 
-interface IAuthContext {
+interface IAuthContextData {
   user: object
   signIn(credentials: ISignInCredentials): Promise<void>
+  signOut(): void
 }
 
 export const AuthContext = createContext<IAuthContext>({} as IAuthContext)
@@ -44,9 +45,26 @@ export const AuthProvider: React.FC = ({ children }) => {
     setData({ token, user })
   }, [])
 
+  const signOut = useCallback(() => {
+    localStorage.removeItem('@GoBarber:token')
+    localStorage.removeItem('@GoBarber:user')
+
+    setData({} as IAuthState)
+  }, [])
+
   return (
-    <AuthContext.Provider value={{ user: data.user, signIn }}>
+    <AuthContext.Provider value={{ user: data.user, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   )
+}
+
+export function useAuth(): IAuthContextData {
+  const context = useContext(AuthContext)
+
+  if (!context) {
+    throw new Error('useAuth must be used within an authProvider')
+  }
+
+  return context
 }
