@@ -3,7 +3,6 @@ import { useAuth } from '../hooks/AuthContext'
 import { ReactNode } from 'react'
 
 interface IRouteProp {
-  children: JSX.Element
   redirectTo: string
 }
 
