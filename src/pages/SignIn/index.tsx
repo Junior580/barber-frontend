@@ -10,16 +10,17 @@ import Button from '../../components/Button'
 import { getValidationErrors } from '../../utils/getValidationErros'
 import { Form } from '@unform/web'
 
-import { Container, Content, Background } from './styles'
+import { Container, Content, AnimationContainer, Background } from './styles'
 
-import { AuthContext, useAuth } from '../../hooks/AuthContext'
+import { useAuth } from '../../hooks/AuthContext'
+import { Link } from 'react-router-dom'
 
 interface ISignInFormData {
   email: string
   password: string
 }
 
-const SignIn: React.FC = () => {
+export const SignIn: React.FC = () => {
   const formRef = useRef<FormHandles>(null)
 
   const { signIn } = useAuth()
@@ -58,29 +59,31 @@ const SignIn: React.FC = () => {
     <>
       <Container>
         <Content>
-          <img src={LogoImg} alt="GoBarber" />
+          <AnimationContainer>
+            <img src={LogoImg} alt="GoBarber" />
 
-          <Form ref={formRef} onSubmit={handleSubmit}>
-            <h1>Faça seu logon</h1>
+            <Form ref={formRef} onSubmit={handleSubmit}>
+              <h1>Faça seu logon</h1>
 
-            <Input name="email" icon={FiMail} placeholder="Email" />
+              <Input name="email" icon={FiMail} placeholder="Email" />
 
-            <Input
-              name="password"
-              icon={FiLock}
-              type="password"
-              placeholder="Senha"
-            />
+              <Input
+                name="password"
+                icon={FiLock}
+                type="password"
+                placeholder="Senha"
+              />
 
-            <Button type="submit">Entrar</Button>
+              <Button type="submit">Entrar</Button>
 
-            <a href="forgot">Esqueci minha senha</a>
-          </Form>
+              <Link to="/forgot">Esqueci minha senha</Link>
+            </Form>
 
-          <a href="forgot">
-            <FiLogIn />
-            Criar conta
-          </a>
+            <Link to="/signup">
+              <FiLogIn />
+              Criar conta
+            </Link>
+          </AnimationContainer>
         </Content>
 
         <Background />
@@ -88,5 +91,3 @@ const SignIn: React.FC = () => {
     </>
   )
 }
-
-export default SignIn
