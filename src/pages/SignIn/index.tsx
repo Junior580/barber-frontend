@@ -12,8 +12,9 @@ import { Form } from '@unform/web'
 
 import { Container, Content, AnimationContainer, Background } from './styles'
 
-import { useAuth } from '../../hooks/AuthContext'
+import { useAuth } from '../../hooks/auth'
 import { Link } from 'react-router-dom'
+import { useToast } from '../../hooks/toast'
 
 interface ISignInFormData {
   email: string
@@ -24,6 +25,7 @@ export const SignIn: React.FC = () => {
   const formRef = useRef<FormHandles>(null)
 
   const { signIn } = useAuth()
+  const { addToast } = useToast()
 
   const handleSubmit = useCallback(
     async (data: ISignInFormData) => {
@@ -41,10 +43,10 @@ export const SignIn: React.FC = () => {
           abortEarly: false,
         })
 
-        signIn({
-          email: data.email,
-          password: data.password,
-        })
+        // signIn({
+        //   email: data.email,
+        //   password: data.password,
+        // })
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
           const errors = getValidationErrors(err)
@@ -53,6 +55,8 @@ export const SignIn: React.FC = () => {
 
           return
         }
+
+        addToast()
       }
     },
     [signIn],
