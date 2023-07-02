@@ -13,7 +13,7 @@ import { Form } from '@unform/web'
 import { Container, Content, AnimationContainer, Background } from './styles'
 
 import { useAuth } from '../../hooks/auth'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useToast } from '../../hooks/toast'
 
 interface ISignInFormData {
@@ -23,6 +23,7 @@ interface ISignInFormData {
 
 export const SignIn: React.FC = () => {
   const formRef = useRef<FormHandles>(null)
+  const navigate = useNavigate()
 
   const { signIn } = useAuth()
   const { addToast } = useToast()
@@ -47,6 +48,8 @@ export const SignIn: React.FC = () => {
           email: data.email,
           password: data.password,
         })
+
+        navigate('/dashboard')
       } catch (err) {
         addToast({
           type: 'success',
