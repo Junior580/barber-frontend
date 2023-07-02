@@ -43,11 +43,16 @@ export const SignIn: React.FC = () => {
           abortEarly: false,
         })
 
-        // signIn({
-        //   email: data.email,
-        //   password: data.password,
-        // })
+        await signIn({
+          email: data.email,
+          password: data.password,
+        })
       } catch (err) {
+        addToast({
+          type: 'success',
+          title: 'Erro na autenticação',
+          description: 'Ocorreu um erro na autentição',
+        })
         if (err instanceof Yup.ValidationError) {
           const errors = getValidationErrors(err)
 
@@ -55,11 +60,9 @@ export const SignIn: React.FC = () => {
 
           return
         }
-
-        addToast()
       }
     },
-    [signIn],
+    [signIn, addToast],
   )
 
   return (
