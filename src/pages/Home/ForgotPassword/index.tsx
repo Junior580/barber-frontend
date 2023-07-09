@@ -54,11 +54,6 @@ export const ForgotPassword: React.FC = () => {
             'Enviamos um email para confirmar a recuperação de senha, cheque sua caixa de entrada',
         })
       } catch (err) {
-        addToast({
-          type: 'error',
-          title: 'Erro na recuperação de senha',
-          description: 'Ocorreu um erro ao tentar recuperar a senha',
-        })
         if (err instanceof Yup.ValidationError) {
           const errors = getValidationErrors(err)
 
@@ -66,6 +61,11 @@ export const ForgotPassword: React.FC = () => {
 
           return
         }
+        addToast({
+          type: 'error',
+          title: 'Erro na recuperação de senha',
+          description: 'Ocorreu um erro ao tentar recuperar a senha',
+        })
       } finally {
         setLoading(false)
       }

@@ -12,44 +12,53 @@ import { Form } from '@unform/web'
 
 import { Container, Content, AnimationContainer, Background } from './styles'
 
-import { useAuth } from '../../../hooks/auth'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useToast } from '../../../hooks/toast'
+import { api } from '../../../services/api'
 
-interface ISignInFormData {
-  email: string
+interface IResetPasswordFormData {
   password: string
+  password_confirmation: string
 }
 
-export const SignIn: React.FC = () => {
+export const ResetPassword: React.FC = () => {
   const formRef = useRef<FormHandles>(null)
-  const navigate = useNavigate()
 
-  const { signIn } = useAuth()
   const { addToast } = useToast()
+  const navigate = useNavigate()
+  const location = useLocation()
 
   const handleSubmit = useCallback(
-    async (data: ISignInFormData) => {
+    async (data: IResetPasswordFormData) => {
       try {
         formRef.current?.setErrors({})
 
         const schema = Yup.object().shape({
-          email: Yup.string()
-            .required('Email obrigatório')
-            .email('Digite um e-mail válido'),
           password: Yup.string().min(6, 'No minimo 6 dígitos'),
+          password_confirmation: Yup.string()
+            .min(6, 'No minimo 6 dígitos')
+            .oneOf([Yup.ref('password')], 'As senhas devem ser iguais'),
         })
 
         await schema.validate(data, {
           abortEarly: false,
         })
 
-        await signIn({
-          email: data.email,
-          password: data.password,
+        const { password, password_confirmation } = data
+
+        const token = location.search.replace('?token=', '')
+
+        if (!token) {
+          throw new Error()
+        }
+
+        await api.post('/password/reset', {
+          password,
+          password_confirmation,
+          token,
         })
 
-        navigate('/dashboard')
+        navigate('/')
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
           const errors = getValidationErrors(err)
@@ -58,14 +67,16 @@ export const SignIn: React.FC = () => {
 
           return
         }
+
         addToast({
-          type: 'error',
-          title: 'Erro na autenticação',
-          description: 'Ocorreu erro ao fazer login, verifique credenciais',
+          type: 'success',
+          title: 'Erro ao resetar senha',
+          description:
+            'Ocorreu um erro ao resetar sua senha, verifique suas credenciais',
         })
       }
     },
-    [signIn, addToast],
+    [addToast, location],
   )
 
   return (
@@ -76,25 +87,27 @@ export const SignIn: React.FC = () => {
             <img src={LogoImg} alt="GoBarber" />
 
             <Form ref={formRef} onSubmit={handleSubmit}>
-              <h1>Faça seu logon</h1>
-
-              <Input name="email" icon={FiMail} placeholder="Email" />
+              <h1>Resetar senha</h1>
 
               <Input
                 name="password"
                 icon={FiLock}
                 type="password"
-                placeholder="Senha"
+                placeholder="Nova senha"
               />
 
-              <Button type="submit">Entrar</Button>
-
-              <Link to="/forgot-password">Esqueci minha senha</Link>
+              <Input
+                name="password_confirmation"
+                icon={FiLock}
+                type="password"
+                placeholder="Confirmação da senha"
+              />
+              <Button type="submit">Alterar senha</Button>
             </Form>
 
-            <Link to="/signup">
+            <Link to="/">
               <FiLogIn />
-              Criar conta
+              Voltar ao login
             </Link>
           </AnimationContainer>
         </Content>
