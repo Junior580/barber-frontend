@@ -17,7 +17,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: boolean
 }
 
-const Input: React.FC<InputProps> = ({ name, icon: Icon, ...rest }) => {
+export const Input: React.FC<InputProps> = ({ name, icon: Icon, ...rest }) => {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const [isFocused, setIsFocused] = useState<boolean>(false)
@@ -62,5 +62,3 @@ const Input: React.FC<InputProps> = ({ name, icon: Icon, ...rest }) => {
     </Container>
   )
 }
-
-export default Input
