@@ -7,9 +7,15 @@ import {
 } from 'react'
 import { api } from '../services/api'
 
+interface IUser {
+  id: string
+  name: string
+  avatar_url: string
+}
+
 interface IAuthState {
   token: string
-  user: object
+  user: IUser
 }
 
 interface ISignInCredentials {
