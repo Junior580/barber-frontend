@@ -1,13 +1,13 @@
+import { ReactNode } from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
 import { useAuth } from '../hooks/auth'
-import { ReactNode } from 'react'
 
-interface IRouteProp {
+type RouteProps = {
   children?: ReactNode
   redirectTo?: string
 }
 
-export const PrivateRoute: React.FC<IRouteProp> = ({
+export const PrivateRoute: React.FC<RouteProps> = ({
   children,
   redirectTo = '/',
 }) => {

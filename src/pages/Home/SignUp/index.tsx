@@ -6,15 +6,13 @@ import { FormHandles } from '@unform/core'
 import { useMutation } from '@tanstack/react-query'
 import { api } from '../../../services/api'
 import { useToast } from '../../../hooks/toast'
-import { getValidationErrors } from '../../../utils/getValidationErros'
 import LogoImg from '../../../assets/logo.svg'
 import { FiArrowLeft, FiMail, FiUser, FiLock } from 'react-icons/fi'
 import { Input } from '../../../components/Input'
 import { Button } from '../../../components/Button'
 import { Container, Content, AnimationContainer, Background } from './styles'
-import { useAuth } from '../../../hooks/auth'
 
-interface ISignUpFormData {
+type SignUpProp = {
   name: string
   email: string
   password: string
@@ -22,29 +20,34 @@ interface ISignUpFormData {
 
 export const SignUp: React.FC = () => {
   const formRef = useRef<FormHandles>(null)
+
   const { addToast } = useToast()
   const navigate = useNavigate()
 
-  const signUp = useCallback(async (data: ISignUpFormData) => {
+  const signUp = useCallback(async (data: SignUpProp) => {
     const response = await api.post('/users', data)
     return response
   }, [])
 
   const { mutate } = useMutation(signUp, {
     onSuccess: () => {
+      addToast({
+        type: 'success',
+        title: 'Cadastro Realizado',
+        description: 'Voce já pode fazer seu logon',
+      })
       return navigate('/')
     },
-    onError: () => {
-      return addToast({
+    onError: () =>
+      addToast({
         type: 'error',
         title: 'Erro no cadastro.',
         description: 'Ocorreu um erro no cadastro, tente novamente.',
-      })
-    },
+      }),
   })
 
   const handleSubmit = useCallback(
-    async (data: ISignUpFormData) => {
+    async (data: SignUpProp) => {
       formRef.current?.setErrors({})
 
       const schema = Yup.object().shape({
