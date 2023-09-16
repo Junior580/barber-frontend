@@ -15,6 +15,7 @@ import { Container, Content, AnimationContainer, Background } from './styles'
 import { useAuth } from '../../../hooks/auth'
 import { Link, useNavigate } from 'react-router-dom'
 import { useToast } from '../../../hooks/toast'
+import { useMutation } from '@tanstack/react-query'
 
 interface ISignInFormData {
   email: string
@@ -28,42 +29,40 @@ export const SignIn: React.FC = () => {
   const { signIn } = useAuth()
   const { addToast } = useToast()
 
+  const login = useCallback(async (data: ISignInFormData) => {
+    const response = await signIn({
+      email: data.email,
+      password: data.password,
+    })
+    return response
+  }, [])
+
+  const { mutate, isLoading } = useMutation(login, {
+    onSuccess: () => navigate('/dashboard'),
+    onError: () =>
+      addToast({
+        type: 'error',
+        title: 'Erro na autenticação',
+        description: 'Ocorreu erro ao fazer login, verifique credenciais',
+      }),
+  })
+
   const handleSubmit = useCallback(
     async (data: ISignInFormData) => {
-      try {
-        formRef.current?.setErrors({})
+      formRef.current?.setErrors({})
 
-        const schema = Yup.object().shape({
-          email: Yup.string()
-            .required('Email obrigatório')
-            .email('Digite um e-mail válido'),
-          password: Yup.string().min(6, 'No minimo 6 dígitos'),
-        })
+      const schema = Yup.object().shape({
+        email: Yup.string()
+          .required('Email obrigatório')
+          .email('Digite um e-mail válido'),
+        password: Yup.string().min(6, 'No minimo 6 dígitos'),
+      })
 
-        await schema.validate(data, {
-          abortEarly: false,
-        })
+      await schema.validate(data, {
+        abortEarly: false,
+      })
 
-        await signIn({
-          email: data.email,
-          password: data.password,
-        })
-
-        navigate('/dashboard')
-      } catch (err) {
-        if (err instanceof Yup.ValidationError) {
-          const errors = getValidationErrors(err)
-
-          formRef.current?.setErrors(errors)
-
-          return
-        }
-        addToast({
-          type: 'error',
-          title: 'Erro na autenticação',
-          description: 'Ocorreu erro ao fazer login, verifique credenciais',
-        })
-      }
+      return mutate(data)
     },
     [signIn, addToast],
   )
@@ -87,7 +86,9 @@ export const SignIn: React.FC = () => {
                 placeholder="Senha"
               />
 
-              <Button type="submit">Entrar</Button>
+              <Button type="submit" loading={isLoading}>
+                Entrar
+              </Button>
 
               <Link to="/forgot-password">Esqueci minha senha</Link>
             </Form>

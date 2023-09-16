@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import * as Yup from 'yup'
 import { Form } from '@unform/web'
 import { FormHandles } from '@unform/core'
+import { useMutation } from '@tanstack/react-query'
 import { api } from '../../../services/api'
 import { useToast } from '../../../hooks/toast'
 import { getValidationErrors } from '../../../utils/getValidationErros'
@@ -11,6 +12,7 @@ import { FiArrowLeft, FiMail, FiUser, FiLock } from 'react-icons/fi'
 import { Input } from '../../../components/Input'
 import { Button } from '../../../components/Button'
 import { Container, Content, AnimationContainer, Background } from './styles'
+import { useAuth } from '../../../hooks/auth'
 
 interface ISignUpFormData {
   name: string
@@ -23,44 +25,41 @@ export const SignUp: React.FC = () => {
   const { addToast } = useToast()
   const navigate = useNavigate()
 
+  const signUp = useCallback(async (data: ISignUpFormData) => {
+    const response = await api.post('/users', data)
+    return response
+  }, [])
+
+  const { mutate } = useMutation(signUp, {
+    onSuccess: () => {
+      return navigate('/')
+    },
+    onError: () => {
+      return addToast({
+        type: 'error',
+        title: 'Erro no cadastro.',
+        description: 'Ocorreu um erro no cadastro, tente novamente.',
+      })
+    },
+  })
+
   const handleSubmit = useCallback(
     async (data: ISignUpFormData) => {
-      try {
-        formRef.current?.setErrors({})
+      formRef.current?.setErrors({})
 
-        const schema = Yup.object().shape({
-          name: Yup.string().required('Nome obrigatório'),
-          email: Yup.string()
-            .required('Email obrigatório')
-            .email('Digite um e-mail válido'),
-          password: Yup.string().min(6, 'No minimo 6 dígitos'),
-        })
+      const schema = Yup.object().shape({
+        name: Yup.string().required('Nome obrigatório'),
+        email: Yup.string()
+          .required('Email obrigatório')
+          .email('Digite um e-mail válido'),
+        password: Yup.string().min(6, 'No minimo 6 dígitos'),
+      })
 
-        await schema.validate(data, {
-          abortEarly: false,
-        })
+      await schema.validate(data, {
+        abortEarly: false,
+      })
 
-        await api.post('/users', data)
-
-        addToast({
-          type: 'success',
-          title: 'Cadastro realizado com sucesso.',
-          description: 'Voce já pode fazer seu logon no GoBarber',
-        })
-
-        navigate('/')
-      } catch (err) {
-        if (err instanceof Yup.ValidationError) {
-          const errors = getValidationErrors(err)
-          formRef.current?.setErrors(errors)
-        }
-
-        addToast({
-          type: 'error',
-          title: 'Erro no cadastro.',
-          description: 'Ocorreu um erro no cadastro, tente novamente.',
-        })
-      }
+      return mutate(data)
     },
     [addToast, navigate],
   )
