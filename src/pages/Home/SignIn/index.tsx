@@ -58,7 +58,7 @@ export const SignIn: React.FC = () => {
         password: Yup.string().min(6, 'No minimo 6 dígitos'),
       })
 
-      await schema.validate(data, {
+      const failed = await schema.validate(data, {
         abortEarly: false,
       })
 

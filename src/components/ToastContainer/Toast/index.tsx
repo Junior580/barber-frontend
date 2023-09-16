@@ -1,11 +1,11 @@
 import { FiAlertCircle, FiCheckCircle, FiInfo, FiXCircle } from 'react-icons/fi'
-import { IToastMessage, useToast } from '../../../hooks/toast'
+import { ToastMessage, useToast } from '../../../hooks/toast'
 
 import { Container } from './styles'
 import { useEffect } from 'react'
 
 interface IToastProps {
-  message: IToastMessage
+  message: ToastMessage
 }
 
 const icons = {

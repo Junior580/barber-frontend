@@ -2,11 +2,11 @@ import React from 'react'
 
 import { Toast } from './Toast/index'
 
-import { IToastMessage } from '../../hooks/toast'
+import { ToastMessage } from '../../hooks/toast'
 import { Container } from './styles'
 
 interface IToastContainerProps {
-  messages: IToastMessage[]
+  messages: ToastMessage[]
 }
 
 export const ToastContainer: React.FC<IToastContainerProps> = ({

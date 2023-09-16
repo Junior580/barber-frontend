@@ -6,7 +6,7 @@ import { useAuth } from '../../../../hooks/auth'
 
 export const Dashboard: React.FC = () => {
   const { signOut, user } = useAuth()
-  console.log(user)
+
   return (
     <Container>
       <Header>

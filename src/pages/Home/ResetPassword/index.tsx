@@ -15,8 +15,9 @@ import { Container, Content, AnimationContainer, Background } from './styles'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useToast } from '../../../hooks/toast'
 import { api } from '../../../services/api'
+import { useMutation } from '@tanstack/react-query'
 
-interface IResetPasswordFormData {
+type ResetPassProp = {
   password: string
   password_confirmation: string
 }
@@ -28,53 +29,49 @@ export const ResetPassword: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
 
+  const resetPass = useCallback(async (data: ResetPassProp) => {
+    const { password, password_confirmation } = data
+    const token = location.search.replace('?token=', '')
+    if (!token) {
+      throw new Error()
+    }
+    const response = await api.post('/password/reset', {
+      password,
+      password_confirmation,
+      token,
+    })
+    return response
+  }, [])
+
+  const { mutate } = useMutation(resetPass, {
+    onSuccess: () => {
+      return navigate('/')
+    },
+    onError: () =>
+      addToast({
+        type: 'success',
+        title: 'Erro ao resetar senha',
+        description:
+          'Ocorreu um erro ao resetar sua senha, verifique suas credenciais',
+      }),
+  })
+
   const handleSubmit = useCallback(
-    async (data: IResetPasswordFormData) => {
-      try {
-        formRef.current?.setErrors({})
+    async (data: ResetPassProp) => {
+      formRef.current?.setErrors({})
 
-        const schema = Yup.object().shape({
-          password: Yup.string().min(6, 'No minimo 6 dígitos'),
-          password_confirmation: Yup.string()
-            .min(6, 'No minimo 6 dígitos')
-            .oneOf([Yup.ref('password')], 'As senhas devem ser iguais'),
-        })
+      const schema = Yup.object().shape({
+        password: Yup.string().min(6, 'No minimo 6 dígitos'),
+        password_confirmation: Yup.string()
+          .min(6, 'No minimo 6 dígitos')
+          .oneOf([Yup.ref('password')], 'As senhas devem ser iguais'),
+      })
 
-        await schema.validate(data, {
-          abortEarly: false,
-        })
+      await schema.validate(data, {
+        abortEarly: false,
+      })
 
-        const { password, password_confirmation } = data
-
-        const token = location.search.replace('?token=', '')
-
-        if (!token) {
-          throw new Error()
-        }
-
-        await api.post('/password/reset', {
-          password,
-          password_confirmation,
-          token,
-        })
-
-        navigate('/')
-      } catch (err) {
-        if (err instanceof Yup.ValidationError) {
-          const errors = getValidationErrors(err)
-
-          formRef.current?.setErrors(errors)
-
-          return
-        }
-
-        addToast({
-          type: 'success',
-          title: 'Erro ao resetar senha',
-          description:
-            'Ocorreu um erro ao resetar sua senha, verifique suas credenciais',
-        })
-      }
+      return mutate(data)
     },
     [addToast, location],
   )
