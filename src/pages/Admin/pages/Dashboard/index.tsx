@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   Container,
   Header,
@@ -6,6 +7,8 @@ import {
   Content,
   Schedule,
   NextAppointment,
+  Section,
+  Appointment,
   Calendar,
 } from './styles'
 
@@ -14,6 +17,7 @@ import { FiClock, FiPower } from 'react-icons/fi'
 import { useAuth } from '../../../../hooks/auth'
 
 export const Dashboard: React.FC = () => {
+  const [selectedDate, setSelectedDate] = useState(new Date())
   const { signOut, user } = useAuth()
 
   return (
@@ -59,6 +63,53 @@ export const Dashboard: React.FC = () => {
               </span>
             </div>
           </NextAppointment>
+          <Section>
+            <strong>Manha</strong>
+            <Appointment>
+              <span>
+                <FiClock />
+                08:00
+              </span>
+              <div>
+                <img
+                  src="https://avatars.githubusercontent.com/u/93562736?v=4"
+                  alt="Img teste"
+                />
+                <strong>Diego fernandes</strong>
+              </div>
+            </Appointment>
+
+            <Appointment>
+              <span>
+                <FiClock />
+                08:00
+              </span>
+              <div>
+                <img
+                  src="https://avatars.githubusercontent.com/u/93562736?v=4"
+                  alt="Img teste"
+                />
+                <strong>Diego fernandes</strong>
+              </div>
+            </Appointment>
+          </Section>
+
+          <Section>
+            <strong>Tarde</strong>
+            <Appointment>
+              <span>
+                <FiClock />
+                08:00
+              </span>
+              <div>
+                <img
+                  src="https://avatars.githubusercontent.com/u/93562736?v=4"
+                  alt="Img teste"
+                />
+                <strong>Diego fernandes</strong>
+              </div>
+            </Appointment>
+          </Section>
         </Schedule>
         <Calendar />
       </Content>
