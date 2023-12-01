@@ -7,12 +7,10 @@ import * as Yup from 'yup'
 import { Input } from '../../../components/Input'
 import { Button } from '../../../components/Button'
 
-import { getValidationErrors } from '../../../utils/getValidationErros'
 import { Form } from '@unform/web'
 
 import { Container, Content, AnimationContainer, Background } from './styles'
 
-import { useAuth } from '../../../hooks/auth'
 import { Link, useNavigate } from 'react-router-dom'
 import { useToast } from '../../../hooks/toast'
 import { useMutation } from '@tanstack/react-query'
@@ -33,7 +31,6 @@ export const SignIn: React.FC = () => {
   const { auth } = useSelector((selector: RootState) => selector)
   const dispatch = useDispatch<AppDispatch>()
 
-  const { signIn } = useAuth()
   const { addToast } = useToast()
 
   const login = useCallback(async ({ email, password }: SignInFormProps) => {
@@ -59,7 +56,8 @@ export const SignIn: React.FC = () => {
       addToast({
         type: 'error',
         title: 'Erro na autenticação',
-        description: 'Ocorreu erro ao fazer login, verifique credenciais',
+        // description: 'Ocorreu erro ao fazer login, verifique credenciais',
+        description: auth.error,
       }),
   })
 
@@ -80,7 +78,7 @@ export const SignIn: React.FC = () => {
 
       return mutate(data)
     },
-    [signIn, addToast],
+    [addToast],
   )
 
   return (

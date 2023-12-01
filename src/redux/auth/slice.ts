@@ -16,14 +16,17 @@ type AuthState = {
   token: string | null
   user: UserProps | null
   status: 'rejected' | 'fulfilled' | null
-  error: string
+  error: string | undefined
 }
 
+const token = localStorage.getItem('@GoBarber:token')
+const user = localStorage.getItem('@GoBarber:user')
+
 const initialState: AuthState = {
-  user: null,
-  token: null,
+  user: user ? JSON.parse(user) : null,
+  token: token || null,
   status: null,
-  error: '',
+  error: undefined,
 }
 
 export const signInAsync = createAsyncThunk(
