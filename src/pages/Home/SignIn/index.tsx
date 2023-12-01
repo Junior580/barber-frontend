@@ -16,8 +16,12 @@ import { useAuth } from '../../../hooks/auth'
 import { Link, useNavigate } from 'react-router-dom'
 import { useToast } from '../../../hooks/toast'
 import { useMutation } from '@tanstack/react-query'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '../../../redux/root-reducer'
+import { signInAsync } from '../../../redux/auth/slice'
+import { AppDispatch } from '../../../redux/store'
 
-interface ISignInFormData {
+type SignInFormProps = {
   email: string
   password: string
 }
@@ -26,16 +30,28 @@ export const SignIn: React.FC = () => {
   const formRef = useRef<FormHandles>(null)
   const navigate = useNavigate()
 
+  const { auth } = useSelector((selector: RootState) => selector)
+  const dispatch = useDispatch<AppDispatch>()
+
   const { signIn } = useAuth()
   const { addToast } = useToast()
 
-  const login = useCallback(async (data: ISignInFormData) => {
-    const response = await signIn({
-      email: data.email,
-      password: data.password,
-    })
-    return response
+  const login = useCallback(async ({ email, password }: SignInFormProps) => {
+    dispatch(
+      signInAsync({
+        email,
+        password,
+      }),
+    )
   }, [])
+
+  // const login = useCallback(async (data: ISignInFormData) => {
+  //   const response = await signIn({
+  //     email: data.email,
+  //     password: data.password,
+  //   })
+  //   return response
+  // }, [])
 
   const { mutate, isLoading } = useMutation(login, {
     onSuccess: () => navigate('/dashboard'),
@@ -48,7 +64,7 @@ export const SignIn: React.FC = () => {
   })
 
   const handleSubmit = useCallback(
-    async (data: ISignInFormData) => {
+    async (data: SignInFormProps) => {
       formRef.current?.setErrors({})
 
       const schema = Yup.object().shape({
