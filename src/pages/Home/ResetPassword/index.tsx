@@ -47,9 +47,7 @@ export const ResetPassword: React.FC = () => {
   }, [])
 
   const { mutate } = useMutation(resetPass, {
-    onSuccess: () => {
-      return navigate('/')
-    },
+    onSuccess: () => navigate('/'),
     onError: () =>
       dispatch(
         addToast({
@@ -72,7 +70,7 @@ export const ResetPassword: React.FC = () => {
           .oneOf([Yup.ref('password')], 'As senhas devem ser iguais'),
       })
 
-      await schema.validate(data, {
+      const teste = await schema.validate(data, {
         abortEarly: false,
       })
 
