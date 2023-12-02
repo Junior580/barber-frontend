@@ -22,7 +22,7 @@ const login = async ({
   password,
 }: LoginProps): Promise<AuthResponse> => {
   return new Promise((resolve, reject) => {
-    return api.post<AuthResponse>('/auth', { email, password }).then(
+    return api.post<AuthResponse>('/sessions', { email, password }).then(
       response => {
         const { user, token } = response.data
 
@@ -39,19 +39,12 @@ const login = async ({
           (error.response && error.response.data) ||
           error.message ||
           error.toString()
-
         reject(errorMessage)
       },
     )
   })
 }
 
-const logout = () => {
-  localStorage.removeItem('@GoBarber:token')
-  localStorage.removeItem('@GoBarber:user')
-}
-
 export default {
   login,
-  logout,
 }

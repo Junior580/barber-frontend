@@ -12,12 +12,12 @@ import { Form } from '@unform/web'
 import { Container, Content, AnimationContainer, Background } from './styles'
 
 import { Link, useNavigate } from 'react-router-dom'
-import { useToast } from '../../../hooks/toast'
 import { useMutation } from '@tanstack/react-query'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../../../redux/root-reducer'
 import { signInAsync } from '../../../redux/auth/slice'
 import { AppDispatch } from '../../../redux/store'
+import { addToast } from '../../../redux/toast/slice'
 
 type SignInFormProps = {
   email: string
@@ -28,37 +28,28 @@ export const SignIn: React.FC = () => {
   const formRef = useRef<FormHandles>(null)
   const navigate = useNavigate()
 
-  const { auth } = useSelector((selector: RootState) => selector)
+  const { auth } = useSelector((state: RootState) => state)
   const dispatch = useDispatch<AppDispatch>()
 
-  const { addToast } = useToast()
-
   const login = useCallback(async ({ email, password }: SignInFormProps) => {
-    dispatch(
+    await dispatch(
       signInAsync({
         email,
         password,
       }),
-    )
+    ).unwrap()
   }, [])
-
-  // const login = useCallback(async (data: ISignInFormData) => {
-  //   const response = await signIn({
-  //     email: data.email,
-  //     password: data.password,
-  //   })
-  //   return response
-  // }, [])
 
   const { mutate, isLoading } = useMutation(login, {
     onSuccess: () => navigate('/dashboard'),
     onError: () =>
-      addToast({
-        type: 'error',
-        title: 'Erro na autenticação',
-        // description: 'Ocorreu erro ao fazer login, verifique credenciais',
-        description: auth.error,
-      }),
+      dispatch(
+        addToast({
+          type: 'error',
+          title: 'Erro na autenticação',
+          description: auth.error,
+        }),
+      ),
   })
 
   const handleSubmit = useCallback(

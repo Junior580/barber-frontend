@@ -48,6 +48,8 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     signOut: state => {
+      localStorage.removeItem('@GoBarber:token')
+      localStorage.removeItem('@GoBarber:user')
       state.token = null
       state.user = null
       state.error = 'null'
