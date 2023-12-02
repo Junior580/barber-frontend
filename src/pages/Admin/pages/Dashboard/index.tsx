@@ -2,10 +2,15 @@ import { Container, Header, HeaderContent, Profile } from './styles'
 
 import logoImg from '../../../../assets/logo.svg'
 import { FiPower } from 'react-icons/fi'
-import { useAuth } from '../../../../hooks/auth'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch } from '../../../../redux/store'
+import { RootState } from '../../../../redux/root-reducer'
+import { signOut } from '../../../../redux/auth/slice'
 
 export const Dashboard: React.FC = () => {
-  const { signOut, user } = useAuth()
+  const { auth } = useSelector((state: RootState) => state)
+
+  const dispatch = useDispatch<AppDispatch>()
 
   return (
     <Container>
@@ -20,11 +25,11 @@ export const Dashboard: React.FC = () => {
             />
             <div>
               <span>Bem vindo,</span>
-              <strong>{user.name}</strong>
+              <strong>{auth.user?.name}</strong>
             </div>
           </Profile>
 
-          <button type="button" onClick={signOut}>
+          <button type="button" onClick={() => dispatch(signOut())}>
             <FiPower />
           </button>
         </HeaderContent>

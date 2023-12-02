@@ -11,6 +11,9 @@ import { FiArrowLeft, FiMail, FiUser, FiLock } from 'react-icons/fi'
 import { Input } from '../../../components/Input'
 import { Button } from '../../../components/Button'
 import { Container, Content, AnimationContainer, Background } from './styles'
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from '../../../redux/store'
+import { addToast } from '../../../redux/toast/slice'
 
 type SignUpProp = {
   name: string
@@ -21,7 +24,8 @@ type SignUpProp = {
 export const SignUp: React.FC = () => {
   const formRef = useRef<FormHandles>(null)
 
-  const { addToast } = useToast()
+  const dispatch = useDispatch<AppDispatch>()
+
   const navigate = useNavigate()
 
   const signUp = useCallback(async (data: SignUpProp) => {
@@ -31,19 +35,23 @@ export const SignUp: React.FC = () => {
 
   const { mutate } = useMutation(signUp, {
     onSuccess: () => {
-      addToast({
-        type: 'success',
-        title: 'Cadastro Realizado',
-        description: 'Voce já pode fazer seu logon',
-      })
+      dispatch(
+        addToast({
+          type: 'success',
+          title: 'Cadastro Realizado',
+          description: 'Voce já pode fazer seu logon',
+        }),
+      )
       return navigate('/')
     },
     onError: () =>
-      addToast({
-        type: 'error',
-        title: 'Erro no cadastro.',
-        description: 'Ocorreu um erro no cadastro, tente novamente.',
-      }),
+      dispatch(
+        addToast({
+          type: 'error',
+          title: 'Erro no cadastro.',
+          description: 'Ocorreu um erro no cadastro, tente novamente.',
+        }),
+      ),
   })
 
   const handleSubmit = useCallback(
