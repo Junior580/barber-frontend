@@ -13,9 +13,11 @@ import { Form } from '@unform/web'
 import { Container, Content, AnimationContainer, Background } from './styles'
 
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { useToast } from '../../../hooks/toast'
 import { api } from '../../../services/api'
 import { useMutation } from '@tanstack/react-query'
+import { AppDispatch } from '../../../redux/store'
+import { useDispatch } from 'react-redux'
+import { addToast } from '../../../redux/toast/slice'
 
 type ResetPassProp = {
   password: string
@@ -25,7 +27,8 @@ type ResetPassProp = {
 export const ResetPassword: React.FC = () => {
   const formRef = useRef<FormHandles>(null)
 
-  const { addToast } = useToast()
+  const dispatch = useDispatch<AppDispatch>()
+
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -46,12 +49,14 @@ export const ResetPassword: React.FC = () => {
   const { mutate } = useMutation(resetPass, {
     onSuccess: () => navigate('/'),
     onError: () =>
-      addToast({
-        type: 'success',
-        title: 'Erro ao resetar senha',
-        description:
-          'Ocorreu um erro ao resetar sua senha, verifique suas credenciais',
-      }),
+      dispatch(
+        addToast({
+          type: 'success',
+          title: 'Erro ao resetar senha',
+          description:
+            'Ocorreu um erro ao resetar sua senha, verifique suas credenciais',
+        }),
+      ),
   })
 
   const handleSubmit = useCallback(

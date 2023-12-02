@@ -7,17 +7,19 @@ import * as Yup from 'yup'
 import { Input } from '../../../components/Input'
 import { Button } from '../../../components/Button'
 
-import { getValidationErrors } from '../../../utils/getValidationErros'
 import { Form } from '@unform/web'
 
 import { Container, Content, AnimationContainer, Background } from './styles'
 
-import { useAuth } from '../../../hooks/auth'
 import { Link, useNavigate } from 'react-router-dom'
-import { useToast } from '../../../hooks/toast'
 import { useMutation } from '@tanstack/react-query'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '../../../redux/root-reducer'
+import { signInAsync } from '../../../redux/auth/slice'
+import { AppDispatch } from '../../../redux/store'
+import { addToast } from '../../../redux/toast/slice'
 
-interface ISignInFormData {
+type SignInFormProps = {
   email: string
   password: string
 }
@@ -26,29 +28,32 @@ export const SignIn: React.FC = () => {
   const formRef = useRef<FormHandles>(null)
   const navigate = useNavigate()
 
-  const { signIn } = useAuth()
-  const { addToast } = useToast()
+  const { auth } = useSelector((state: RootState) => state)
+  const dispatch = useDispatch<AppDispatch>()
 
-  const login = useCallback(async (data: ISignInFormData) => {
-    const response = await signIn({
-      email: data.email,
-      password: data.password,
-    })
-    return response
+  const login = useCallback(async ({ email, password }: SignInFormProps) => {
+    await dispatch(
+      signInAsync({
+        email,
+        password,
+      }),
+    ).unwrap()
   }, [])
 
   const { mutate, isLoading } = useMutation(login, {
     onSuccess: () => navigate('/dashboard'),
     onError: () =>
-      addToast({
-        type: 'error',
-        title: 'Erro na autenticação',
-        description: 'Ocorreu erro ao fazer login, verifique credenciais',
-      }),
+      dispatch(
+        addToast({
+          type: 'error',
+          title: 'Erro na autenticação',
+          description: auth.error,
+        }),
+      ),
   })
 
   const handleSubmit = useCallback(
-    async (data: ISignInFormData) => {
+    async (data: SignInFormProps) => {
       formRef.current?.setErrors({})
 
       const schema = Yup.object().shape({
@@ -64,7 +69,7 @@ export const SignIn: React.FC = () => {
 
       return mutate(data)
     },
-    [signIn, addToast],
+    [addToast],
   )
 
   return (

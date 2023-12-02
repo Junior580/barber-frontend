@@ -13,8 +13,10 @@ import { Button } from '../../../components/Button'
 import { Container, Content, AnimationContainer, Background } from './styles'
 
 import { Link, useNavigate } from 'react-router-dom'
-import { useToast } from '../../../hooks/toast'
 import { api } from '../../../services/api'
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from '../../../redux/store'
+import { addToast } from '../../../redux/toast/slice'
 
 type ForgotPassProp = {
   email: string
@@ -23,7 +25,8 @@ type ForgotPassProp = {
 export const ForgotPassword: React.FC = () => {
   const formRef = useRef<FormHandles>(null)
 
-  const { addToast } = useToast()
+  const dispatch = useDispatch<AppDispatch>()
+
   const navigate = useNavigate()
 
   const forgotPass = useCallback(async (data: ForgotPassProp) => {
@@ -35,12 +38,14 @@ export const ForgotPassword: React.FC = () => {
 
   const { mutate, isLoading } = useMutation(forgotPass, {
     onSuccess: () => {
-      addToast({
-        type: 'success',
-        title: 'E-mail de recuperação enviado',
-        description:
-          'Enviamos um email para confirmar a recuperação de senha, cheque sua caixa de entrada',
-      })
+      dispatch(
+        addToast({
+          type: 'success',
+          title: 'E-mail de recuperação enviado',
+          description:
+            'Enviamos um email para confirmar a recuperação de senha, cheque sua caixa de entrada',
+        }),
+      )
       return navigate('/')
     },
     onError: () =>

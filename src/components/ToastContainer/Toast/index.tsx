@@ -1,8 +1,11 @@
 import { FiAlertCircle, FiCheckCircle, FiInfo, FiXCircle } from 'react-icons/fi'
-import { ToastMessage, useToast } from '../../../hooks/toast'
+import { ToastMessage } from '../../../hooks/toast'
 
 import { Container } from './styles'
 import { useEffect } from 'react'
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from '../../../redux/store'
+import { removeToast } from '../../../redux/toast/slice'
 
 interface IToastProps {
   message: ToastMessage
@@ -15,11 +18,11 @@ const icons = {
 }
 
 export const Toast: React.FC<IToastProps> = ({ message }) => {
-  const { removeToast } = useToast()
+  const dispatch = useDispatch<AppDispatch>()
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      removeToast(message.id)
+      dispatch(removeToast(message.id))
     }, 3000)
 
     return () => {
@@ -38,7 +41,7 @@ export const Toast: React.FC<IToastProps> = ({ message }) => {
 
       <button
         onClick={() => {
-          removeToast(message.id)
+          dispatch(removeToast(message.id))
         }}
         type="button"
       >
