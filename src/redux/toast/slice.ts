@@ -2,7 +2,7 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 import { v4 as uuid } from 'uuid'
 
 type ToastMessage = {
-  id?: string
+  id: string
   type?: 'success' | 'info' | 'error'
   title: string
   description?: string

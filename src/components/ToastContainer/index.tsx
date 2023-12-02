@@ -2,16 +2,20 @@ import React from 'react'
 
 import { Toast } from './Toast/index'
 
-import { ToastMessage } from '../../hooks/toast'
 import { Container } from './styles'
 
-interface IToastContainerProps {
+type ToastMessage = {
+  id: string
+  type?: 'success' | 'info' | 'error'
+  title: string
+  description?: string
+}
+
+type ToastContainerProps = {
   messages: ToastMessage[]
 }
 
-export const ToastContainer: React.FC<IToastContainerProps> = ({
-  messages,
-}) => {
+export const ToastContainer: React.FC<ToastContainerProps> = ({ messages }) => {
   return (
     <Container>
       {messages.map(message => (
