@@ -5,7 +5,7 @@ import { Toast } from './Toast/index'
 import { Container } from './styles'
 
 type ToastMessage = {
-  id: string
+  id?: string
   type?: 'success' | 'info' | 'error'
   title: string
   description?: string
