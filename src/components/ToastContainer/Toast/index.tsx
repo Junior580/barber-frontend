@@ -1,5 +1,4 @@
 import { FiAlertCircle, FiCheckCircle, FiInfo, FiXCircle } from 'react-icons/fi'
-import { ToastMessage } from '../../../hooks/toast'
 
 import { Container } from './styles'
 import { useEffect } from 'react'
@@ -7,7 +6,14 @@ import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../../redux/store'
 import { removeToast } from '../../../redux/toast/slice'
 
-interface IToastProps {
+type ToastMessage = {
+  id: string
+  type?: 'success' | 'info' | 'error'
+  title: string
+  description?: string
+}
+
+type ToastProps = {
   message: ToastMessage
 }
 
@@ -17,7 +23,7 @@ const icons = {
   error: <FiAlertCircle size={24} />,
 }
 
-export const Toast: React.FC<IToastProps> = ({ message }) => {
+export const Toast: React.FC<ToastProps> = ({ message }) => {
   const dispatch = useDispatch<AppDispatch>()
 
   useEffect(() => {

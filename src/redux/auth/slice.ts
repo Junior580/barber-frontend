@@ -16,7 +16,7 @@ type AuthState = {
   token: string | null
   user: UserProps | null
   status: 'rejected' | 'fulfilled' | null
-  error: string | undefined
+  error: string | null
 }
 
 const token = localStorage.getItem('@GoBarber:token')
@@ -26,7 +26,7 @@ const initialState: AuthState = {
   user: user ? JSON.parse(user) : null,
   token: token || null,
   status: null,
-  error: undefined,
+  error: null,
 }
 
 export const signInAsync = createAsyncThunk(
@@ -52,7 +52,7 @@ const authSlice = createSlice({
       localStorage.removeItem('@GoBarber:user')
       state.token = null
       state.user = null
-      state.error = 'null'
+      state.error = null
     },
   },
   extraReducers: builder => {

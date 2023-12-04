@@ -1,13 +1,17 @@
 import React, { useCallback, useRef } from 'react'
+
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { FiLogIn, FiMail, FiLock } from 'react-icons/fi'
 import LogoImg from '../../../assets/logo.svg'
-import { FormHandles } from '@unform/core'
+// import { FormHandles } from '@unform/core'
 import * as Yup from 'yup'
 
 import { Input } from '../../../components/Input'
 import { Button } from '../../../components/Button'
 
-import { Form } from '@unform/web'
+// import { Form } from '@unform/web'
 
 import { Container, Content, AnimationContainer, Background } from './styles'
 
@@ -24,12 +28,23 @@ type SignInFormProps = {
   password: string
 }
 
+const SignInSchema = z.object({
+  email: z.string().email(),
+  password: z.string(),
+})
+
+type SignInSchemaType = z.infer<typeof SignInSchema>
+
 export const SignIn: React.FC = () => {
-  const formRef = useRef<FormHandles>(null)
+  // const formRef = useRef<FormHandles>(null)
   const navigate = useNavigate()
 
   const { auth } = useSelector((state: RootState) => state)
   const dispatch = useDispatch<AppDispatch>()
+
+  const { register, handleSubmit } = useForm<SignInSchemaType>({
+    resolver: zodResolver(SignInSchema),
+  })
 
   const login = useCallback(async ({ email, password }: SignInFormProps) => {
     await dispatch(
@@ -52,9 +67,9 @@ export const SignIn: React.FC = () => {
       ),
   })
 
-  const handleSubmit = useCallback(
+  const onSubmit = useCallback(
     async (data: SignInFormProps) => {
-      formRef.current?.setErrors({})
+      // formRef.current?.setErrors({})
 
       const schema = Yup.object().shape({
         email: Yup.string()
@@ -79,7 +94,8 @@ export const SignIn: React.FC = () => {
           <AnimationContainer>
             <img src={LogoImg} alt="GoBarber" />
 
-            <Form ref={formRef} onSubmit={handleSubmit}>
+            {/* <Form ref={formRef} onSubmit={handleSubmit}> */}
+            <form onSubmit={handleSubmit(onSubmit)}>
               <h1>Faça seu logon</h1>
 
               <Input name="email" icon={FiMail} placeholder="Email" />
@@ -89,6 +105,7 @@ export const SignIn: React.FC = () => {
                 icon={FiLock}
                 type="password"
                 placeholder="Senha"
+                register={register('password')}
               />
 
               <Button type="submit" loading={isLoading}>
@@ -96,7 +113,8 @@ export const SignIn: React.FC = () => {
               </Button>
 
               <Link to="/forgot-password">Esqueci minha senha</Link>
-            </Form>
+              {/* </Form> */}
+            </form>
 
             <Link to="/signup">
               <FiLogIn />
