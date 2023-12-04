@@ -22,7 +22,7 @@ class APIService {
     try {
       const response = await this.api.post('/login', { email, password })
       return response
-    } catch (error) {
+    } catch (error: any) {
       throw this.handleRequestError(error)
     }
   }
