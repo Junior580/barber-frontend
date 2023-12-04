@@ -1,6 +1,6 @@
 import React, { useCallback, useRef } from 'react'
 
-import { SubmitHandler, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FiLogIn, FiMail, FiLock } from 'react-icons/fi'
