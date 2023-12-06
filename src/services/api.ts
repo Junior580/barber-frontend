@@ -1,32 +1,10 @@
-import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios'
+import axios, { AxiosError } from 'axios'
 
-export const api = axios.create({
+const api = axios.create({
   baseURL: 'http://localhost:3000/api',
 })
 
-type SignInProps = {
-  email: string
-  password: string
-}
-
-const signIn = async ({
-  email,
-  password,
-}: SignInProps): Promise<AxiosResponse> => {
-  try {
-    const response = await api.post('/login', { email, password })
-    return response
-  } catch (error) {
-    if (error instanceof AxiosError) {
-      throw handleRequestError(error)
-    } else {
-      console.error('Erro desconhecido:', error)
-      throw new Error('Erro desconhecido')
-    }
-  }
-}
-
-const handleRequestError = (error: AxiosError) => {
+function handleRequestError(error: AxiosError) {
   if (error.response) {
     console.error('Erro de resposta do servidor:', error.response.data)
     return new Error('Erro de resposta do servidor')
@@ -38,5 +16,14 @@ const handleRequestError = (error: AxiosError) => {
     return new Error('Erro ao configurar a solicitação')
   }
 }
+axios.interceptors.response.use(
+  response => response,
+  (error: AxiosError) => handleRequestError(error),
+)
 
-export default { signIn }
+axios.interceptors.request.use(
+  config => config,
+  (error: AxiosError) => handleRequestError(error),
+)
+
+export default api
