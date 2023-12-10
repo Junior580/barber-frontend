@@ -13,7 +13,7 @@ import { Button } from '../../../components/Button'
 import { Container, Content, AnimationContainer, Background } from './styles'
 
 import { Link, useNavigate } from 'react-router-dom'
-import { api } from '../../../services/api'
+import api from '../../../services/api'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../../redux/store'
 import { addToast } from '../../../redux/toast/slice'

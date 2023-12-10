@@ -4,8 +4,7 @@ import * as Yup from 'yup'
 import { Form } from '@unform/web'
 import { FormHandles } from '@unform/core'
 import { useMutation } from '@tanstack/react-query'
-import { api } from '../../../services/api'
-import { useToast } from '../../../hooks/toast'
+import signUpService from '../../../services/signUp.service'
 import LogoImg from '../../../assets/logo.svg'
 import { FiArrowLeft, FiMail, FiUser, FiLock } from 'react-icons/fi'
 import { Input } from '../../../components/Input'
@@ -14,6 +13,7 @@ import { Container, Content, AnimationContainer, Background } from './styles'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../../redux/store'
 import { addToast } from '../../../redux/toast/slice'
+import { getValidationErrors } from '../../../utils/getValidationErros'
 
 type SignUpProp = {
   name: string
@@ -29,8 +29,7 @@ export const SignUp: React.FC = () => {
   const navigate = useNavigate()
 
   const signUp = useCallback(async (data: SignUpProp) => {
-    const response = await api.post('/users', data)
-    return response
+    return await signUpService(data)
   }, [])
 
   const { mutate } = useMutation(signUp, {
@@ -44,12 +43,12 @@ export const SignUp: React.FC = () => {
       )
       return navigate('/')
     },
-    onError: () =>
+    onError: e =>
       dispatch(
         addToast({
           type: 'error',
           title: 'Erro no cadastro.',
-          description: 'Ocorreu um erro no cadastro, tente novamente.',
+          description: `Ocorreu um erro no cadastro: ${e}`,
         }),
       ),
   })
@@ -66,11 +65,28 @@ export const SignUp: React.FC = () => {
         password: Yup.string().min(6, 'No minimo 6 dígitos'),
       })
 
-      await schema.validate(data, {
-        abortEarly: false,
-      })
-
-      return mutate(data)
+      await schema
+        .validate(data, {
+          abortEarly: false,
+        })
+        .then(
+          response => {
+            return mutate(response as SignUpProp)
+          },
+          e => {
+            if (e instanceof Yup.ValidationError) {
+              const errors = getValidationErrors(e)
+              return formRef.current?.setErrors(errors)
+            }
+            return dispatch(
+              addToast({
+                type: 'error',
+                title: 'Erro no cadastro.',
+                description: `Ocorreu erro ao fazer cadastros`,
+              }),
+            )
+          },
+        )
     },
     [addToast, navigate],
   )

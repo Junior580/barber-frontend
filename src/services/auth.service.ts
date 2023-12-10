@@ -6,7 +6,7 @@ type LoginProps = {
   password: string
 }
 
-type UserProp = {
+type UserProps = {
   id: string
   name: string
   avatar_url: string
@@ -14,15 +14,15 @@ type UserProp = {
 
 type AuthResponse = {
   token: string
-  user: UserProp
+  user: UserProps
 }
 
 const login = async ({
   email,
   password,
 }: LoginProps): Promise<AuthResponse> => {
-  return new Promise((resolve, reject) => {
-    return api.post<AuthResponse>('/sessions', { email, password }).then(
+  return new Promise(async (resolve, reject) => {
+    return await api.post<AuthResponse>('/sessions', { email, password }).then(
       response => {
         const { user, token } = response.data
 
@@ -34,7 +34,7 @@ const login = async ({
 
         resolve({ user, token })
       },
-      (error: AxiosError) => {
+      error => {
         const errorMessage =
           (error.response && error.response.data) ||
           error.message ||

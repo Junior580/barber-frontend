@@ -58,9 +58,8 @@ const authSlice = createSlice({
   extraReducers: builder => {
     builder
       .addCase(signInAsync.fulfilled, (state, action) => {
-        state.token = action.payload.token
         state.user = action.payload.user
-        state.error = ''
+        state.token = action.payload.token
       })
       .addCase(signInAsync.rejected, (state, action) => {
         state.token = null

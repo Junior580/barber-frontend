@@ -13,7 +13,7 @@ import { Form } from '@unform/web'
 import { Container, Content, AnimationContainer, Background } from './styles'
 
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { api } from '../../../services/api'
+import api from '../../../services/api'
 import { useMutation } from '@tanstack/react-query'
 import { AppDispatch } from '../../../redux/store'
 import { useDispatch } from 'react-redux'
