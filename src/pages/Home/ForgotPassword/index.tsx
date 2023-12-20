@@ -1,11 +1,13 @@
 import React, { useCallback, useRef, useState } from 'react'
 import { FiLogIn, FiMail } from 'react-icons/fi'
 import LogoImg from '../../../assets/logo.svg'
-import { FormHandles } from '@unform/core'
-import { Form } from '@unform/web'
+
+import { Controller, SubmitHandler, useForm } from 'react-hook-form'
+
+import z from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 import { useMutation } from '@tanstack/react-query'
-import * as Yup from 'yup'
 
 import { Input } from '../../../components/Input'
 import { Button } from '../../../components/Button'
@@ -18,18 +20,27 @@ import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../../redux/store'
 import { addToast } from '../../../redux/toast/slice'
 
-type ForgotPassProp = {
-  email: string
-}
+const ForgotPassSchema = z.object({
+  email: z.string().email(),
+})
+
+type ForgotPassSchemaType = z.infer<typeof ForgotPassSchema>
 
 export const ForgotPassword: React.FC = () => {
-  const formRef = useRef<FormHandles>(null)
-
   const dispatch = useDispatch<AppDispatch>()
 
   const navigate = useNavigate()
 
-  const forgotPass = useCallback(async (data: ForgotPassProp) => {
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ForgotPassSchemaType>({
+    resolver: zodResolver(ForgotPassSchema),
+    defaultValues: { email: '' },
+  })
+
+  const forgotPass = useCallback(async (data: ForgotPassSchemaType) => {
     const response = await api.post('/password/forgot', {
       email: data.email,
     })
@@ -56,23 +67,9 @@ export const ForgotPassword: React.FC = () => {
       }),
   })
 
-  const handleSubmit = useCallback(
-    async (data: ForgotPassProp) => {
-      formRef.current?.setErrors({})
-
-      const schema = Yup.object().shape({
-        email: Yup.string()
-          .required('Email obrigatório')
-          .email('Digite um e-mail válido'),
-      })
-
-      await schema.validate(data, {
-        abortEarly: false,
-      })
-
-      return mutate(data)
-    },
-    [addToast],
+  const onSubmit: SubmitHandler<ForgotPassSchemaType> = useCallback(
+    async data => mutate(data),
+    [],
   )
 
   return (
@@ -82,15 +79,27 @@ export const ForgotPassword: React.FC = () => {
           <AnimationContainer>
             <img src={LogoImg} alt="GoBarber" />
 
-            <Form ref={formRef} onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit(onSubmit)}>
               <h1>Recuperar senha</h1>
 
-              <Input name="email" icon={FiMail} placeholder="Email" />
+              <Controller
+                control={control}
+                name="email"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    onChange={onChange}
+                    value={value}
+                    icon={FiMail}
+                    placeholder="Email"
+                    error={errors.email?.message}
+                  />
+                )}
+              />
 
               <Button loading={isLoading} type="submit">
                 Recuperar
               </Button>
-            </Form>
+            </form>
 
             <Link to="/sigin">
               <FiLogIn />

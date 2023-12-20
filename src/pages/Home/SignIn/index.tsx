@@ -1,14 +1,14 @@
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback } from 'react'
 
 import { FiLogIn, FiMail, FiLock } from 'react-icons/fi'
 import LogoImg from '../../../assets/logo.svg'
-import { FormHandles } from '@unform/core'
-import * as Yup from 'yup'
+
+import { Controller, SubmitHandler, useForm } from 'react-hook-form'
+import z from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 import { Input } from '../../../components/Input'
 import { Button } from '../../../components/Button'
-
-import { Form } from '@unform/web'
 
 import { Container, Content, AnimationContainer, Background } from './styles'
 
@@ -19,21 +19,30 @@ import { RootState } from '../../../redux/root-reducer'
 import { signInAsync } from '../../../redux/auth/slice'
 import { AppDispatch } from '../../../redux/store'
 import { addToast } from '../../../redux/toast/slice'
-import { getValidationErrors } from '../../../utils/getValidationErros'
 
-type SignInFormProps = {
-  email: string
-  password: string
-}
+const SignInSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+})
+
+type SignInSchemaType = z.infer<typeof SignInSchema>
 
 export const SignIn: React.FC = () => {
-  const formRef = useRef<FormHandles>(null)
   const navigate = useNavigate()
 
   const { auth } = useSelector((state: RootState) => state)
   const dispatch = useDispatch<AppDispatch>()
 
-  const login = useCallback(async ({ email, password }: SignInFormProps) => {
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignInSchemaType>({
+    resolver: zodResolver(SignInSchema),
+    defaultValues: { email: '', password: '' },
+  })
+
+  const login = useCallback(async ({ email, password }: SignInSchemaType) => {
     await dispatch(
       signInAsync({
         email,
@@ -55,41 +64,9 @@ export const SignIn: React.FC = () => {
     },
   })
 
-  const onSubmit = useCallback(
-    async (data: SignInFormProps) => {
-      formRef.current?.setErrors({})
-
-      const schema = Yup.object().shape({
-        email: Yup.string()
-          .required('Email obrigatório')
-          .email('Digite um e-mail válido'),
-        password: Yup.string().min(6, 'No minimo 6 dígitos'),
-      })
-
-      await schema
-        .validate(data, {
-          abortEarly: false,
-        })
-        .then(
-          response => {
-            return mutate(response as SignInFormProps)
-          },
-          e => {
-            if (e instanceof Yup.ValidationError) {
-              const errors = getValidationErrors(e)
-              return formRef.current?.setErrors(errors)
-            }
-            return dispatch(
-              addToast({
-                type: 'error',
-                title: 'Erro na autenticação',
-                description: 'Ocorreu erro ao fazer login, cheque credenciais',
-              }),
-            )
-          },
-        )
-    },
-    [addToast],
+  const onSubmit: SubmitHandler<SignInSchemaType> = useCallback(
+    async data => mutate(data),
+    [],
   )
 
   return (
@@ -99,16 +76,36 @@ export const SignIn: React.FC = () => {
           <AnimationContainer>
             <img src={LogoImg} alt="GoBarber" />
 
-            <Form ref={formRef} onSubmit={onSubmit}>
+            <form onSubmit={handleSubmit(onSubmit)}>
               <h1>Faça seu logon</h1>
 
-              <Input name="email" icon={FiMail} placeholder="Email" />
+              <Controller
+                control={control}
+                name="email"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    onChange={onChange}
+                    value={value}
+                    icon={FiMail}
+                    placeholder="Email"
+                    error={errors.email?.message}
+                  />
+                )}
+              />
 
-              <Input
+              <Controller
+                control={control}
                 name="password"
-                icon={FiLock}
-                type="password"
-                placeholder="Senha"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    onChange={onChange}
+                    value={value}
+                    icon={FiLock}
+                    type="password"
+                    placeholder="Senha"
+                    error={errors.password?.message}
+                  />
+                )}
               />
 
               <Button type="submit" loading={isLoading}>
@@ -116,7 +113,7 @@ export const SignIn: React.FC = () => {
               </Button>
 
               <Link to="/forgot-password">Esqueci minha senha</Link>
-            </Form>
+            </form>
 
             <Link to="/signup">
               <FiLogIn />
