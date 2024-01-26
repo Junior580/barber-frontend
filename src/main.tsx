@@ -1,14 +1,19 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { App } from './pages/App/App'
+import { router } from './pages/App/App'
 
-import { Provider } from 'react-redux'
-import store from './redux/store'
+import { RouterProvider } from 'react-router-dom'
+import QueryProvider from './providers/queryProvider'
+import AppProvider from './hooks/index'
+import GlobalStyle from '../src/styles/global'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <Provider store={store}>
-      <App />
-    </Provider>
+    <AppProvider>
+      <QueryProvider>
+        <RouterProvider router={router} />
+        <GlobalStyle />
+      </QueryProvider>
+    </AppProvider>
   </React.StrictMode>,
 )

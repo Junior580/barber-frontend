@@ -1,7 +1,6 @@
 import { ReactElement } from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
-import { useSelector } from 'react-redux'
-import { RootState } from '../redux/root-reducer'
+import { useAuth } from '../hooks/auth'
 
 type RouteProps = {
   children?: ReactElement
@@ -12,7 +11,7 @@ export const PrivateRoute: React.FC<RouteProps> = ({
   children,
   redirectTo = '/',
 }) => {
-  const { user } = useSelector((selector: RootState) => selector.auth)
+  const { user } = useAuth()
 
   return user ? children || <Outlet /> : <Navigate to={redirectTo} />
 }

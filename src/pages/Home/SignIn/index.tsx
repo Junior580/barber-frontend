@@ -14,11 +14,9 @@ import { Container, Content, AnimationContainer, Background } from './styles'
 
 import { Link, useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
-import { useDispatch, useSelector } from 'react-redux'
-import { RootState } from '../../../redux/root-reducer'
-import { signInAsync } from '../../../redux/auth/slice'
-import { AppDispatch } from '../../../redux/store'
-import { addToast } from '../../../redux/toast/slice'
+import { useToast } from '../../../hooks/toast'
+import { signUpService } from '../../../services/services'
+import { useAuth } from '../../../hooks/auth'
 
 const SignInSchema = z.object({
   email: z.string().email(),
@@ -28,10 +26,9 @@ const SignInSchema = z.object({
 type SignInSchemaType = z.infer<typeof SignInSchema>
 
 export const SignIn: React.FC = () => {
+  const { signIn } = useAuth()
+  const { addToast } = useToast()
   const navigate = useNavigate()
-
-  const { auth } = useSelector((state: RootState) => state)
-  const dispatch = useDispatch<AppDispatch>()
 
   const {
     control,
@@ -42,26 +39,14 @@ export const SignIn: React.FC = () => {
     defaultValues: { email: '', password: '' },
   })
 
-  const login = useCallback(async ({ email, password }: SignInSchemaType) => {
-    await dispatch(
-      signInAsync({
-        email,
-        password,
-      }),
-    ).unwrap()
-  }, [])
-
-  const { mutate, isLoading } = useMutation(login, {
+  const { mutate, isLoading } = useMutation(signIn, {
     onSuccess: () => navigate('/dashboard'),
-    onError: () => {
-      return dispatch(
-        addToast({
-          type: 'error',
-          title: 'Erro na autenticação',
-          description: auth.error as string,
-        }),
-      )
-    },
+    onError: () =>
+      addToast({
+        type: 'error',
+        title: 'Erro na autenticação',
+        description: 'Ocorreu erro ao fazer login, cheque credenciais',
+      }),
   })
 
   const onSubmit: SubmitHandler<SignInSchemaType> = useCallback(

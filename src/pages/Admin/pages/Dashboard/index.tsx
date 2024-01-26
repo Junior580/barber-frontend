@@ -14,16 +14,12 @@ import {
 import logoImg from '../../../../assets/logo.svg'
 
 import { FiClock, FiPower } from 'react-icons/fi'
-import { useDispatch, useSelector } from 'react-redux'
-import { AppDispatch } from '../../../../redux/store'
-import { RootState } from '../../../../redux/root-reducer'
-import { signOut } from '../../../../redux/auth/slice'
 
 import { isToday } from 'date-fns'
+import { useAuth } from '../../../../hooks/auth'
 
 export const Dashboard: React.FC = () => {
-  const { auth } = useSelector((state: RootState) => state)
-  const dispatch = useDispatch<AppDispatch>()
+  const { signOut, user } = useAuth()
 
   return (
     <Container>
@@ -32,14 +28,14 @@ export const Dashboard: React.FC = () => {
           <img src={logoImg} alt="GoBarber" />
 
           <Profile>
-            <img src={auth.user?.avatar_url} alt={auth.user?.name} />
+            <img src={user?.avatar_url} alt={user?.name} />
             <div>
               <span>Bem vindo,</span>
-              <strong>{auth.user?.name}</strong>
+              <strong>{user?.name}</strong>
             </div>
           </Profile>
 
-          <button type="button" onClick={() => dispatch(signOut())}>
+          <button type="button" onClick={() => signOut()}>
             <FiPower />
           </button>
         </HeaderContent>

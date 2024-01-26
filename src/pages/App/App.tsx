@@ -1,5 +1,5 @@
 import GlobalStyle from '../../styles/global'
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { createBrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import { SignIn } from '../Home/SignIn'
@@ -10,30 +10,49 @@ import { ForgotPassword } from '../Home/ForgotPassword'
 import { ResetPassword } from '../Home/ResetPassword'
 import { ToastProvider } from '../../hooks/toast'
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      staleTime: 1000 * 60 * 30,
-    },
+// export const App: React.FC = () => (
+//   <BrowserRouter>
+//     <QueryClientProvider client={queryClient}>
+//       <ToastProvider>
+//         <Routes>
+//           <Route path="/" element={<SignIn />} />
+//           <Route path="/signup" element={<SignUp />} />
+//           <Route path="/forgot-password" element={<ForgotPassword />} />
+//           <Route path="/reset-password/*" element={<ResetPassword />} />
+
+//           <Route path="/dashboard/*" element={<Admin />} />
+//           <Route path="*" element={<Navigate to="/" />} />
+//         </Routes>
+//       </ToastProvider>
+//     </QueryClientProvider>
+//     <GlobalStyle />
+//   </BrowserRouter>
+// )
+
+export const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <SignIn />,
   },
-})
+  {
+    path: '/signup',
+    element: <SignUp />,
+  },
 
-export const App: React.FC = () => (
-  <BrowserRouter>
-    <QueryClientProvider client={queryClient}>
-      <ToastProvider>
-        <Routes>
-          <Route path="/" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password/*" element={<ResetPassword />} />
-
-          <Route path="/dashboard/*" element={<Admin />} />
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </ToastProvider>
-    </QueryClientProvider>
-    <GlobalStyle />
-  </BrowserRouter>
-)
+  {
+    path: '/forgot-password',
+    element: <ForgotPassword />,
+  },
+  {
+    path: '/reset-password/*',
+    element: <ResetPassword />,
+  },
+  {
+    path: '/dashboard/*',
+    element: <Admin />,
+  },
+  {
+    path: '*',
+    element: <Navigate to="/" />,
+  },
+])

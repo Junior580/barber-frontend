@@ -16,9 +16,8 @@ import { Container, Content, AnimationContainer, Background } from './styles'
 
 import { Link, useNavigate } from 'react-router-dom'
 import api from '../../../services/api'
-import { useDispatch } from 'react-redux'
-import { AppDispatch } from '../../../redux/store'
-import { addToast } from '../../../redux/toast/slice'
+import { useToast } from '../../../hooks/toast'
+import { forgotPassService } from '../../../services/services'
 
 const ForgotPassSchema = z.object({
   email: z.string().email(),
@@ -27,8 +26,7 @@ const ForgotPassSchema = z.object({
 type ForgotPassSchemaType = z.infer<typeof ForgotPassSchema>
 
 export const ForgotPassword: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>()
-
+  const { addToast } = useToast()
   const navigate = useNavigate()
 
   const {
@@ -40,23 +38,14 @@ export const ForgotPassword: React.FC = () => {
     defaultValues: { email: '' },
   })
 
-  const forgotPass = useCallback(async (data: ForgotPassSchemaType) => {
-    const response = await api.post('/password/forgot', {
-      email: data.email,
-    })
-    return response
-  }, [])
-
-  const { mutate, isLoading } = useMutation(forgotPass, {
+  const { mutate, isLoading } = useMutation(forgotPassService, {
     onSuccess: () => {
-      dispatch(
-        addToast({
-          type: 'success',
-          title: 'E-mail de recuperação enviado',
-          description:
-            'Enviamos um email para confirmar a recuperação de senha, cheque sua caixa de entrada',
-        }),
-      )
+      addToast({
+        type: 'success',
+        title: 'E-mail de recuperação enviado',
+        description:
+          'Enviamos um email para confirmar a recuperação de senha, cheque sua caixa de entrada',
+      })
       return navigate('/')
     },
     onError: () =>

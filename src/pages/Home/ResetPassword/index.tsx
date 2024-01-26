@@ -14,9 +14,7 @@ import { Container, Content, AnimationContainer, Background } from './styles'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import api from '../../../services/api'
 import { useMutation } from '@tanstack/react-query'
-import { AppDispatch } from '../../../redux/store'
-import { useDispatch } from 'react-redux'
-import { addToast } from '../../../redux/toast/slice'
+import { useToast } from '../../../hooks/toast'
 
 const ResetPassSchema = z
   .object({
@@ -31,8 +29,7 @@ const ResetPassSchema = z
 type ResetPassSchemaType = z.infer<typeof ResetPassSchema>
 
 export const ResetPassword: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>()
-
+  const { addToast } = useToast()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -62,14 +59,12 @@ export const ResetPassword: React.FC = () => {
   const { mutate } = useMutation(resetPass, {
     onSuccess: () => navigate('/'),
     onError: () =>
-      dispatch(
-        addToast({
-          type: 'error',
-          title: 'Erro ao resetar senha',
-          description:
-            'Ocorreu um erro ao resetar sua senha, verifique suas credenciais',
-        }),
-      ),
+      addToast({
+        type: 'error',
+        title: 'Erro ao resetar senha',
+        description:
+          'Ocorreu um erro ao resetar sua senha, verifique suas credenciais',
+      }),
   })
 
   const onSubmit: SubmitHandler<ResetPassSchemaType> = useCallback(
