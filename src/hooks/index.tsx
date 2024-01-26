@@ -1,5 +1,6 @@
 import { ReactNode } from 'react'
 
+import { AuthProvider } from './auth'
 import { ToastProvider } from '../hooks/toast'
 
 interface AppProviderProps {
@@ -7,7 +8,9 @@ interface AppProviderProps {
 }
 
 const AppProvider = ({ children }: AppProviderProps) => (
-  <ToastProvider>{children}</ToastProvider>
+  <AuthProvider>
+    <ToastProvider>{children}</ToastProvider>
+  </AuthProvider>
 )
 
 export default AppProvider

@@ -15,7 +15,6 @@ import { Container, Content, AnimationContainer, Background } from './styles'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { useToast } from '../../../hooks/toast'
-import { signUpService } from '../../../services/services'
 import { useAuth } from '../../../hooks/auth'
 
 const SignInSchema = z.object({
@@ -51,7 +50,7 @@ export const SignIn: React.FC = () => {
 
   const onSubmit: SubmitHandler<SignInSchemaType> = useCallback(
     async data => mutate(data),
-    [],
+    [mutate],
   )
 
   return (
