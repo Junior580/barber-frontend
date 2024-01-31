@@ -13,9 +13,17 @@ import { Button } from '../../../components/Button'
 import { Container, Content, AnimationContainer, Background } from './styles'
 
 import { Link, useNavigate } from 'react-router-dom'
-import { useMutation } from '@tanstack/react-query'
+import {
+  MutationCache,
+  useMutation,
+  useQueries,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { useToast } from '../../../hooks/toast'
 import { useAuth } from '../../../hooks/auth'
+import api from '../../../services/api'
+import axios from 'axios'
 
 const SignInSchema = z.object({
   email: z.string().email(),
@@ -25,7 +33,7 @@ const SignInSchema = z.object({
 type SignInSchemaType = z.infer<typeof SignInSchema>
 
 export const SignIn: React.FC = () => {
-  const { signIn } = useAuth()
+  // const { signIn } = useAuth()
   const { addToast } = useToast()
   const navigate = useNavigate()
 
@@ -38,8 +46,24 @@ export const SignIn: React.FC = () => {
     defaultValues: { email: '', password: '' },
   })
 
-  const { mutate, isLoading } = useMutation(signIn, {
-    onSuccess: () => navigate('/dashboard'),
+  const signIn = useCallback(async ({ email, password }: SignInSchemaType) => {
+    const response = await api.post('/sessions', {
+      email,
+      password,
+    })
+    const { token, user } = response.data
+
+    localStorage.setItem('@GoBarber:token', token)
+    localStorage.setItem('@GoBarber:user', JSON.stringify(user))
+
+    api.defaults.headers.authorization = `Bearer ${token}`
+
+    return user
+  }, [])
+
+  const { mutateAsync, isLoading } = useMutation({
+    mutationFn: signIn,
+    onSuccess: user => queryClient.setQueryData(['signindata'], user),
     onError: () =>
       addToast({
         type: 'error',
@@ -49,9 +73,24 @@ export const SignIn: React.FC = () => {
   })
 
   const onSubmit: SubmitHandler<SignInSchemaType> = useCallback(
-    async data => mutate(data),
-    [mutate],
+    async data => mutateAsync(data),
+    [mutateAsync],
   )
+
+  //teste
+
+  const { data: testData } = useQuery({
+    queryKey: ['testData'],
+    queryFn: async () => {
+      return axios
+        .get('https://jsonplaceholder.typicode.com/posts/1')
+        .then(response => response.data)
+    },
+  })
+
+  const queryClient = useQueryClient()
+  const query = queryClient.getQueryData(['signindata'])
+  console.log(`🔥 ~ queryCache ~ ${JSON.stringify(query)}  `)
 
   return (
     <>
