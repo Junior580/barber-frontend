@@ -11,6 +11,7 @@ import { Container, Content, AnimationContainer, Background } from './styles'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useToast } from '../../../hooks/toast'
 import { signUpService } from '../../../services/services'
+import { useAuth } from '../../../hooks/auth'
 
 const SignUpSchema = z.object({
   name: z.string().min(5),
@@ -30,7 +31,6 @@ export const SignUp: React.FC = () => {
     formState: { errors },
   } = useForm<SignUpSchemaType>({
     resolver: zodResolver(SignUpSchema),
-    defaultValues: { email: '', password: '' },
   })
 
   const { mutate } = useMutation(signUpService, {
