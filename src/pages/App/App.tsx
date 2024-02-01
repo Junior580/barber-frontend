@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, createBrowserRouter } from 'react-router-dom'
 
 import { SignIn } from '../Home/SignIn'
 import { SignUp } from '../Home/SignUp'
@@ -8,17 +8,39 @@ import { ResetPassword } from '../Home/ResetPassword'
 import { PrivateRoute } from '../../routes/PrivateRoute'
 import { Dashboard } from '../Admin/Dashboard'
 
-export const App: React.FC = () => (
-  <Routes>
-    <Route element={<PrivateRoute />}>
-      <Route path="/" element={<SignIn />} />
-      <Route path="/signup" element={<SignUp />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password/*" element={<ResetPassword />} />
-    </Route>
-    <Route element={<PrivateRoute isPrivate />}>
-      <Route path="/dashboard" element={<Dashboard />} />
-    </Route>
-    <Route path="*" element={<Navigate to="/" />} />
-  </Routes>
-)
+export const router = createBrowserRouter([
+  {
+    element: <PrivateRoute />,
+    children: [
+      {
+        path: '/',
+        element: <SignIn />,
+      },
+      {
+        path: '/signup',
+        element: <SignUp />,
+      },
+      {
+        path: '/forgot-password',
+        element: <ForgotPassword />,
+      },
+      {
+        path: '/reset-password/*',
+        element: <ResetPassword />,
+      },
+    ],
+  },
+  {
+    element: <PrivateRoute isPrivate />,
+    children: [
+      {
+        path: '/dashboard',
+        element: <Dashboard />,
+      },
+    ],
+  },
+  {
+    path: '*',
+    element: <Navigate to="/" />,
+  },
+])

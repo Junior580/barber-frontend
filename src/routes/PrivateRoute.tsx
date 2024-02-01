@@ -1,7 +1,7 @@
-import { ReactNode } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
 import { useAuth } from '../hooks/auth'
-import { QueryCache } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 
 type RouteProps = {
   children?: ReactNode
