@@ -1,78 +1,57 @@
-import { useCallback, useRef } from 'react'
+import { useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import * as Yup from 'yup'
-import { Form } from '@unform/web'
-import { FormHandles } from '@unform/core'
+import { Controller, SubmitHandler, useForm } from 'react-hook-form'
+import z from 'zod'
 import { useMutation } from '@tanstack/react-query'
-import { api } from '../../../services/api'
-import { useToast } from '../../../hooks/toast'
 import LogoImg from '../../../assets/logo.svg'
 import { FiArrowLeft, FiMail, FiUser, FiLock } from 'react-icons/fi'
 import { Input } from '../../../components/Input'
 import { Button } from '../../../components/Button'
 import { Container, Content, AnimationContainer, Background } from './styles'
-import { useDispatch } from 'react-redux'
-import { AppDispatch } from '../../../redux/store'
-import { addToast } from '../../../redux/toast/slice'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useToast } from '../../../hooks/toast'
+import { signUpService } from '../../../services/services'
 
-type SignUpProp = {
-  name: string
-  email: string
-  password: string
-}
+const SignUpSchema = z.object({
+  name: z.string().min(5),
+  email: z.string().email(),
+  password: z.string().min(6),
+})
+
+type SignUpSchemaType = z.infer<typeof SignUpSchema>
 
 export const SignUp: React.FC = () => {
-  const formRef = useRef<FormHandles>(null)
-
-  const dispatch = useDispatch<AppDispatch>()
-
+  const { addToast } = useToast()
   const navigate = useNavigate()
 
-  const signUp = useCallback(async (data: SignUpProp) => {
-    const response = await api.post('/users', data)
-    return response
-  }, [])
-
-  const { mutate } = useMutation(signUp, {
-    onSuccess: () => {
-      dispatch(
-        addToast({
-          type: 'success',
-          title: 'Cadastro Realizado',
-          description: 'Voce já pode fazer seu logon',
-        }),
-      )
-      return navigate('/')
-    },
-    onError: () =>
-      dispatch(
-        addToast({
-          type: 'error',
-          title: 'Erro no cadastro.',
-          description: 'Ocorreu um erro no cadastro, tente novamente.',
-        }),
-      ),
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignUpSchemaType>({
+    resolver: zodResolver(SignUpSchema),
   })
 
-  const handleSubmit = useCallback(
-    async (data: SignUpProp) => {
-      formRef.current?.setErrors({})
-
-      const schema = Yup.object().shape({
-        name: Yup.string().required('Nome obrigatório'),
-        email: Yup.string()
-          .required('Email obrigatório')
-          .email('Digite um e-mail válido'),
-        password: Yup.string().min(6, 'No minimo 6 dígitos'),
+  const { mutate } = useMutation(signUpService, {
+    onSuccess: () => {
+      addToast({
+        type: 'success',
+        title: 'Cadastro Realizado',
+        description: 'Voce já pode fazer seu logon',
       })
-
-      await schema.validate(data, {
-        abortEarly: false,
-      })
-
-      return mutate(data)
+      return navigate('/')
     },
-    [addToast, navigate],
+    onError: e =>
+      addToast({
+        type: 'error',
+        title: 'Erro no cadastro.',
+        description: `Ocorreu um erro no cadastro: ${e}`,
+      }),
+  })
+
+  const onSubmit: SubmitHandler<SignUpSchemaType> = useCallback(
+    async data => mutate(data),
+    [],
   )
 
   return (
@@ -83,22 +62,53 @@ export const SignUp: React.FC = () => {
         <Content>
           <AnimationContainer>
             <img src={LogoImg} alt="GoBarber" />
-            <Form ref={formRef} onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit(onSubmit)}>
               <h1>Faça seu cadastro</h1>
 
-              <Input name="name" icon={FiUser} placeholder="Nome" />
+              <Controller
+                control={control}
+                name="name"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    onChange={onChange}
+                    value={value}
+                    icon={FiUser}
+                    placeholder="Nome"
+                    error={errors.name?.message}
+                  />
+                )}
+              />
 
-              <Input name="email" icon={FiMail} placeholder="Email" />
+              <Controller
+                control={control}
+                name="email"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    onChange={onChange}
+                    value={value}
+                    icon={FiMail}
+                    placeholder="Email"
+                    error={errors.email?.message}
+                  />
+                )}
+              />
 
-              <Input
+              <Controller
+                control={control}
                 name="password"
-                icon={FiLock}
-                type="password"
-                placeholder="Senha"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    onChange={onChange}
+                    value={value}
+                    icon={FiLock}
+                    placeholder="Senha"
+                    error={errors.password?.message}
+                  />
+                )}
               />
 
               <Button type="submit">Cadastrar</Button>
-            </Form>
+            </form>
 
             <Link to="/">
               <FiArrowLeft />

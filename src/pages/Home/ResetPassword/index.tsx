@@ -1,38 +1,48 @@
 import React, { useCallback, useRef } from 'react'
 import { FiLogIn, FiMail, FiLock } from 'react-icons/fi'
 import LogoImg from '../../../assets/logo.svg'
-import { FormHandles } from '@unform/core'
-import * as Yup from 'yup'
 
 import { Input } from '../../../components/Input'
 import { Button } from '../../../components/Button'
 
-import { getValidationErrors } from '../../../utils/getValidationErros'
-import { Form } from '@unform/web'
+import { Controller, SubmitHandler, useForm } from 'react-hook-form'
+import z from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 import { Container, Content, AnimationContainer, Background } from './styles'
 
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { api } from '../../../services/api'
+import api from '../../../services/api'
 import { useMutation } from '@tanstack/react-query'
-import { AppDispatch } from '../../../redux/store'
-import { useDispatch } from 'react-redux'
-import { addToast } from '../../../redux/toast/slice'
+import { useToast } from '../../../hooks/toast'
 
-type ResetPassProp = {
-  password: string
-  password_confirmation: string
-}
+const ResetPassSchema = z
+  .object({
+    password: z.string().min(6),
+    password_confirmation: z.string().min(6),
+  })
+  .refine(data => data.password === data.password_confirmation, {
+    message: 'As senhas não coincidem',
+    path: ['password_confirmation'],
+  })
+
+type ResetPassSchemaType = z.infer<typeof ResetPassSchema>
 
 export const ResetPassword: React.FC = () => {
-  const formRef = useRef<FormHandles>(null)
-
-  const dispatch = useDispatch<AppDispatch>()
-
+  const { addToast } = useToast()
   const navigate = useNavigate()
   const location = useLocation()
 
-  const resetPass = useCallback(async (data: ResetPassProp) => {
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ResetPassSchemaType>({
+    resolver: zodResolver(ResetPassSchema),
+    defaultValues: { password: '', password_confirmation: '' },
+  })
+
+  const resetPass = useCallback(async (data: ResetPassSchemaType) => {
     const { password, password_confirmation } = data
     const token = location.search.replace('?token=', '')
     if (!token) {
@@ -49,34 +59,17 @@ export const ResetPassword: React.FC = () => {
   const { mutate } = useMutation(resetPass, {
     onSuccess: () => navigate('/'),
     onError: () =>
-      dispatch(
-        addToast({
-          type: 'success',
-          title: 'Erro ao resetar senha',
-          description:
-            'Ocorreu um erro ao resetar sua senha, verifique suas credenciais',
-        }),
-      ),
+      addToast({
+        type: 'error',
+        title: 'Erro ao resetar senha',
+        description:
+          'Ocorreu um erro ao resetar sua senha, verifique suas credenciais',
+      }),
   })
 
-  const handleSubmit = useCallback(
-    async (data: ResetPassProp) => {
-      formRef.current?.setErrors({})
-
-      const schema = Yup.object().shape({
-        password: Yup.string().min(6, 'No minimo 6 dígitos'),
-        password_confirmation: Yup.string()
-          .min(6, 'No minimo 6 dígitos')
-          .oneOf([Yup.ref('password')], 'As senhas devem ser iguais'),
-      })
-
-      const teste = await schema.validate(data, {
-        abortEarly: false,
-      })
-
-      return mutate(data)
-    },
-    [addToast, location],
+  const onSubmit: SubmitHandler<ResetPassSchemaType> = useCallback(
+    async data => mutate(data),
+    [],
   )
 
   return (
@@ -86,24 +79,41 @@ export const ResetPassword: React.FC = () => {
           <AnimationContainer>
             <img src={LogoImg} alt="GoBarber" />
 
-            <Form ref={formRef} onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit(onSubmit)}>
               <h1>Resetar senha</h1>
 
-              <Input
+              <Controller
+                control={control}
                 name="password"
-                icon={FiLock}
-                type="password"
-                placeholder="Nova senha"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    onChange={onChange}
+                    value={value}
+                    icon={FiLock}
+                    type="password"
+                    placeholder="Senha"
+                    error={errors.password?.message}
+                  />
+                )}
               />
 
-              <Input
+              <Controller
+                control={control}
                 name="password_confirmation"
-                icon={FiLock}
-                type="password"
-                placeholder="Confirmação da senha"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    onChange={onChange}
+                    value={value}
+                    icon={FiLock}
+                    type="password"
+                    placeholder="Confirmação da senha"
+                    error={errors.password_confirmation?.message}
+                  />
+                )}
               />
+
               <Button type="submit">Alterar senha</Button>
-            </Form>
+            </form>
 
             <Link to="/">
               <FiLogIn />
