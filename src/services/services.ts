@@ -19,3 +19,27 @@ export const forgotPassService = async (data: ForgotPassProps) => {
     email: data.email,
   })
 }
+
+type UpdateProfileType = {
+  name: string
+  email: string
+  password: string
+  old_password: string
+  password_confirmation: string
+}
+
+export const updateProfileService = async ({
+  name,
+  email,
+  password,
+  old_password,
+  password_confirmation,
+}: UpdateProfileType) => {
+  return api.put('/profile', {
+    name,
+    email,
+    password,
+    old_password,
+    password_confirmation,
+  })
+}

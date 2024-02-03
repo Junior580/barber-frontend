@@ -7,6 +7,7 @@ import { ForgotPassword } from '../Home/ForgotPassword'
 import { ResetPassword } from '../Home/ResetPassword'
 import { PrivateRoute } from '../../routes/PrivateRoute'
 import { Dashboard } from '../Admin/Dashboard'
+import Profile from '../Admin/Profile'
 
 export const router = createBrowserRouter([
   {
@@ -36,6 +37,10 @@ export const router = createBrowserRouter([
       {
         path: '/dashboard',
         element: <Dashboard />,
+      },
+      {
+        path: '/profile',
+        element: <Profile />,
       },
     ],
   },

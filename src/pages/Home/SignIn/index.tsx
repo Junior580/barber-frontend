@@ -86,9 +86,9 @@ export const SignIn: React.FC = () => {
                 name="password"
                 render={({ field: { onChange, value } }) => (
                   <Input
+                    icon={FiLock}
                     onChange={onChange}
                     value={value}
-                    icon={FiLock}
                     type="password"
                     placeholder="Senha"
                     error={errors.password?.message}

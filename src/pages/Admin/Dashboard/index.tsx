@@ -16,12 +16,15 @@ import logoImg from '../../../assets/logo.svg'
 
 import { FiClock, FiPower } from 'react-icons/fi'
 import DayPicker, { DayModifiers } from 'react-day-picker'
+import 'react-day-picker/lib/style.css'
+
 import { Link } from 'react-router-dom'
 
 import { format, isAfter, isToday, parseISO } from 'date-fns'
 import { useAuth } from '../../../hooks/auth'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import api from '../../../services/api'
+import userDefault from '../../../assets/icon-user.png'
 
 interface MonthAvailabilityItem {
   day: number
@@ -138,7 +141,11 @@ export const Dashboard: React.FC = () => {
           <img src={logoImg} alt="GoBarber" />
 
           <Profile>
-            <img src={user?.avatar_url} alt={user?.name} />
+            <img
+              src={user.avatar_url ? user.avatar_url : userDefault}
+              alt={user?.name}
+            />
+
             <div>
               <span>
                 Bem vindo,{' '}
